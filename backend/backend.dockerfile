@@ -2,11 +2,15 @@ FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
 
 WORKDIR /app/
 
-# Install Poetry
-RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/etc/poetry python3 - && \
-    cd /usr/local/bin && \
-    ln -s /opt/poetry/bin/poetry && \
-    poetry config virtualenvs.create false
+ENV POETRY_VERSION=1.5.1 \
+    POETRY_HOME=/opt/poetry \
+    POETRY_VENV=/opt/poetry-venv \
+    POETRY_CACHE_DIR=/opt/.cache
+
+RUN python3 -m venv $POETRY_VENV \
+    && $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
+
+ENV PATH="${PATH}:${POETRY_VENV}/bin"
 
 # Copy poetry.lock* in case it doesn't exist in the repo
 COPY ./app/pyproject.toml ./app/poetry.lock* /app/
